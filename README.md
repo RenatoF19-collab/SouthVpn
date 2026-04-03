@@ -11,7 +11,16 @@ South VPN is a lightweight, high-performance VPN service built on the **WireGuar
 
 ## 🚀 One-Click Installation
 
+
 ### 🐧 For Linux (Ubuntu/Debian/CentOS)
 Best for 24/7 cloud servers. Run this in your terminal:
 ```bash
 wget -qO- [https://raw.githubusercontent.com/YOUR_USERNAME/south-vpn/main/install.sh](https://raw.githubusercontent.com/YOUR_USERNAME/south-vpn/main/install.sh) | sudo bash
+```
+## 🪟 WINDOWS INSTALLATION (Fast Track)
+
+### 1. The Command
+Open **PowerShell as Administrator** and paste this:
+
+```powershell
+Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072; iex ((New-Object System.Net.WebClient).DownloadString('[https://raw.githubusercontent.com/YOUR_USERNAME/south-vpn/main/windows-install.ps1](https://raw.githubusercontent.com/YOUR_USERNAME/south-vpn/main/windows-install.ps1)'))
