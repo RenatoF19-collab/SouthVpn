@@ -26,7 +26,7 @@ sudo dnf install -y curl wget
 ### 🐧 For Linux (Ubuntu/Debian/CentOS)
 Best for 24/7 cloud servers. Run this in your terminal:
 ```bash
-wget -qO- [https://raw.githubusercontent.com/YOUR_USERNAME/south-vpn/main/install.sh](https://raw.githubusercontent.com/YOUR_USERNAME/south-vpn/main/install.sh) | sudo bash
+wget -qO- https://raw.githubusercontent.com/YOUR_USERNAME/south-vpn/main/install.sh | sudo bash
 ```
 ## 🪟 WINDOWS INSTALLATION (Fast Track)
 
