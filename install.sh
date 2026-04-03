@@ -1,26 +1,52 @@
 #!/bin/bash
 
-echo "🌐 Installing South VPN..."
+# --- Colors for the vibe ---
+GREEN='\033[0;32m'
+CYAN='\033[0;36m'
+BOLD='\033[1m'
+NC='\033[0m' # No Color
 
-# Check for root privileges
+clear
+
+# --- 🚀 South VPN ASCII Logo ---
+echo -e "${CYAN}${BOLD}"
+echo "  ___________________________________________________"
+echo " /                                                   \\"
+echo " |    ⚡ SOUTH VPN: THE OPEN SOURCE TUNNEL ⚡       |"
+echo " \___________________________________________________/"
+echo -e "${NC}"
+
+# Check for root
 if [ "$EUID" -ne 0 ]; then 
-  echo "Please run as root (use sudo)"
-  exit
+  echo -e "${GREEN}![Error]${NC} Please run this script with: sudo bash install.sh"
+  exit 1
 fi
 
-# Install Docker if not present
-if ! [ -x "$(command -v docker)" ]; then
-  echo "🐳 Installing Docker..."
-  curl -fsSL https://get.docker.com | sh
-fi
-
-# Get Public IP automatically
+echo -e "${CYAN}[1/4]${NC} 🛰️ Detecting server environment..."
 SERVER_IP=$(curl -s ifconfig.me)
+if [ -z "$SERVER_IP" ]; then
+    SERVER_IP=$(hostname -I | awk '{print $1}')
+fi
+echo -e "     > Public IP found: ${BOLD}${SERVER_IP}${NC}"
 
-# Create directory
+echo -e "\n${CYAN}[2/4]${NC} 🔐 Security Setup"
+read -p "     > Set a password for your Web Dashboard: " UI_PASS
+if [ -z "$UI_PASS" ]; then
+    UI_PASS="SouthVPN$(date +%s | tail -c 4)"
+    echo -e "     > No password entered. Using generated: ${BOLD}$UI_PASS${NC}"
+fi
+
+echo -e "\n${CYAN}[3/4]${NC} 🐳 Checking Docker engine..."
+if ! [ -x "$(command -v docker)" ]; then
+    echo "     > Docker not found. Installing now..."
+    curl -fsSL https://get.docker.com | sh
+else
+    echo "     > Docker is already installed. Skipping."
+fi
+
+echo -e "\n${CYAN}[4/4]${NC} 🏗️  Building South VPN..."
 mkdir -p ~/south-vpn && cd ~/south-vpn
 
-# Generate the Docker config
 cat <<EOF > docker-compose.yml
 services:
   south-vpn:
@@ -28,9 +54,10 @@ services:
     container_name: south-vpn
     environment:
       - WG_HOST=${SERVER_IP}
-      - PASSWORD=SouthVPNAdmin # Change this after login!
+      - PASSWORD=${UI_PASS}
       - WG_PORT=51820
       - WG_DEFAULT_DNS=1.1.1.1
+      - WG_ALLOWED_IPS=0.0.0.0/0
     volumes:
       - ./.wg-easy:/etc/wireguard
     ports:
@@ -45,11 +72,12 @@ services:
     restart: unless-stopped
 EOF
 
-# Start the VPN
-docker compose up -d
+docker compose up -d --quiet-pull
 
-echo "------------------------------------------------"
-echo "✅ South VPN is now ONLINE!"
-echo "🔗 Dashboard: http://${SERVER_IP}:51821"
-echo "🔑 Password: SouthVPNAdmin"
-echo "------------------------------------------------"
+# --- Final Output ---
+echo -e "\n${GREEN}${BOLD}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+echo -e "${GREEN}  ✅ SOUTH VPN IS LIVE! ${NC}"
+echo -e "  🌐 Dashboard: ${CYAN}http://${SERVER_IP}:51821${NC}"
+echo -e "  🔑 Password:  ${BOLD}${UI_PASS}${NC}"
+echo -e "${GREEN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+echo "  Tip: Open Port 51820 (UDP) and 51821 (TCP) in your cloud provider."
