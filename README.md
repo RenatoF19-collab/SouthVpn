@@ -11,6 +11,17 @@ South VPN is a lightweight, high-performance VPN service built on the **WireGuar
 
 ## 🚀 One-Click Installation
 
+## 🛠️ Prerequisites
+Before running the installer, ensure your system has the necessary tools. Open your terminal and run:
+
+### 🐧 For Ubuntu / Debian / Kali / Mint
+```bash
+sudo apt update && sudo apt install -y curl wget
+```
+For Fedora / CentOs / RHEL
+```bash
+sudo dnf install -y curl wget
+```
 
 ### 🐧 For Linux (Ubuntu/Debian/CentOS)
 Best for 24/7 cloud servers. Run this in your terminal:
