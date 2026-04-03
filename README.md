@@ -26,7 +26,7 @@ sudo dnf install -y curl wget
 ### 🐧 For Linux (Ubuntu/Debian/CentOS)
 Best for 24/7 cloud servers. Run this in your terminal:
 ```bash
-wget -qO- https://raw.githubusercontent.com/YOUR_USERNAME/south-vpn/main/install.sh | sudo bash
+wget -O- https://raw.githubusercontent.com/RenatoF19-collab/SouthVpn/main/install.sh | sudo bash
 ```
 ## 🪟 WINDOWS INSTALLATION (Fast Track)
 
@@ -34,4 +34,4 @@ wget -qO- https://raw.githubusercontent.com/YOUR_USERNAME/south-vpn/main/install
 Open **PowerShell as Administrator** and paste this:
 
 ```powershell
-Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072; iex ((New-Object System.Net.WebClient).DownloadString('[https://raw.githubusercontent.com/YOUR_USERNAME/south-vpn/main/windows-install.ps1](https://raw.githubusercontent.com/YOUR_USERNAME/south-vpn/main/windows-install.ps1)'))
+Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072; iex ((New-Object System.Net.WebClient).DownloadString('https://raw.githubusercontent.com/RenatoF19-collab/SouthVpn/main/windows-install.ps1'))
