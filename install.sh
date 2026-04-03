@@ -1,63 +1,53 @@
 #!/bin/bash
 
-# --- Colors for the vibe ---
-GREEN='\033[0;32m'
+# --- Colors ---
 CYAN='\033[0;36m'
-BOLD='\033[1m'
-NC='\033[0m' # No Color
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+NC='\033[0m'
 
 clear
+echo -e "${CYAN}  ___________________________________________________ "
+echo -e " /                                                   \\"
+echo -e " |      ⚡ SOUTH VPN: THE OPEN SOURCE TUNNEL ⚡      |"
+echo -e " \___________________________________________________/${NC}"
+echo ""
 
-# --- 🚀 South VPN ASCII Logo ---
-echo -e "${CYAN}${BOLD}"
-echo "  ___________________________________________________"
-echo " /                                                   \\"
-echo " |    ⚡ SOUTH VPN: THE OPEN SOURCE TUNNEL ⚡       |"
-echo " \___________________________________________________/"
-echo -e "${NC}"
-
-# Check for root
-if [ "$EUID" -ne 0 ]; then 
-  echo -e "${GREEN}![Error]${NC} Please run this script with: sudo bash install.sh"
-  exit 1
-fi
-
-echo -e "${CYAN}[1/4]${NC} 🛰️ Detecting server environment..."
+# [1/4] Detecting server environment
+echo -e "${YELLOW}[1/4] 🛰️ Detecting server environment...${NC}"
 SERVER_IP=$(curl -s ifconfig.me)
 if [ -z "$SERVER_IP" ]; then
-    SERVER_IP=$(hostname -I | awk '{print $1}')
+    SERVER_IP="127.0.0.1"
 fi
-echo -e "     > Public IP found: ${BOLD}${SERVER_IP}${NC}"
+echo -e "     > Public IP found: ${GREEN}$SERVER_IP${NC}"
 
-echo -e "\n${CYAN}[2/4]${NC} 🔐 Security Setup"
-read -p "     > Set a password for your Web Dashboard: " UI_PASS
-if [ -z "$UI_PASS" ]; then
-    UI_PASS="SouthVPN$(date +%s | tail -c 4)"
-    echo -e "     > No password entered. Using generated: ${BOLD}$UI_PASS${NC}"
-fi
+# [2/4] Security Setup
+echo -e "${YELLOW}[2/4] 🔐 Security Setup${NC}"
+read -p "     > Enter Dashboard Password (default: SouthVPN262): " PASS
+PASS=${PASS:-SouthVPN262}
+echo -e "     > Using password: ${GREEN}$PASS${NC}"
 
-echo -e "\n${CYAN}[3/4]${NC} 🐳 Checking Docker engine..."
-if ! [ -x "$(command -v docker)" ]; then
-    echo "     > Docker not found. Installing now..."
+# [3/4] Docker Check & Install
+echo -e "${YELLOW}[3/4] 🐳 Checking Docker Engine...${NC}"
+if ! command -v docker &> /dev/null; then
+    echo -e "     > Installing Docker..."
     curl -fsSL https://get.docker.com | sh
-else
-    echo "     > Docker is already installed. Skipping."
+    systemctl start docker
+    systemctl enable docker
 fi
 
-echo -e "\n${CYAN}[4/4]${NC} 🏗️  Building South VPN..."
+# [4/4] Deploying South VPN
+echo -e "${YELLOW}[4/4] 🚀 Deploying South VPN...${NC}"
 mkdir -p ~/south-vpn && cd ~/south-vpn
 
 cat <<EOF > docker-compose.yml
 services:
-  south-vpn:
-    image: weejewel/wg-easy
-    container_name: south-vpn
+  wg-easy:
     environment:
       - WG_HOST=${SERVER_IP}
-      - PASSWORD=${UI_PASS}
-      - WG_PORT=51820
-      - WG_DEFAULT_DNS=1.1.1.1
-      - WG_ALLOWED_IPS=0.0.0.0/0
+      - PASSWORD=${PASS}
+    image: weejewel/wg-easy
+    container_name: south-vpn
     volumes:
       - ./.wg-easy:/etc/wireguard
     ports:
@@ -66,18 +56,13 @@ services:
     cap_add:
       - NET_ADMIN
       - SYS_MODULE
-    sysctls:
-      - net.ipv4.conf.all.src_valid_mark=1
-      - net.ipv4.ip_forward=1
     restart: unless-stopped
 EOF
 
-docker compose up -d --quiet-pull
+docker run --rm --privileged -v /var/run/docker.sock:/var/run/docker.sock docker/compose:latest up -d
 
-# --- Final Output ---
-echo -e "\n${GREEN}${BOLD}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
-echo -e "${GREEN}  ✅ SOUTH VPN IS LIVE! ${NC}"
-echo -e "  🌐 Dashboard: ${CYAN}http://${SERVER_IP}:51821${NC}"
-echo -e "  🔑 Password:  ${BOLD}${UI_PASS}${NC}"
-echo -e "${GREEN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
-echo "  Tip: Open Port 51820 (UDP) and 51821 (TCP) in your cloud provider."
+echo ""
+echo -e "${GREEN}✅ INSTALLATION COMPLETE!${NC}"
+echo -e "🌐 Dashboard: http://${SERVER_IP}:51821"
+echo -e "🔑 Password: ${PASS}"
+echo ""
